@@ -50,49 +50,30 @@ imageInput.addEventListener('change', (event) => {
 
     upload.removeAttribute("selected")
 
-const upload = document.querySelector('.upload');
-const imageInput = document.createElement('input');
+    var file = imageInput.files[0];
+    var data = new FormData();
+    data.append("image", file);
 
-imageInput.type = 'file';
-imageInput.accept = '.jpeg,.png,.gif';
+    fetch('	https://api.imgur.com/3/image', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Client-ID ec67bcef2e19c08'
+        },
+        body: data
+    })
+    .then(result => result.json())
+    .then(response => {
+        
+        var url = response.data.link;
+        upload.classList.remove("error_shown")
+        upload.setAttribute("selected", url);
+        upload.classList.add("upload_loaded");
+        upload.classList.remove("upload_loading");
+        upload.querySelector(".upload_uploaded").src = url;
 
-document.querySelectorAll('.input_holder').forEach((element) => {
-  const input = element.querySelector('.input');
-  input.addEventListener('click', () => {
-    element.classList.remove('error_shown');
-  });
-});
+    })
 
-upload.addEventListener('click', () => imageInput.click());
-
-imageInput.addEventListener('change', async () => {
-  resetUploadState();
-
-  const file = imageInput.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append('image', file);
-
-  try {
-    const response = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Client-ID 774f3ba80197c47',
-      },
-      body: formData,
-    });
-    const result = await response.json();
-
-    if (result?.data?.link) {
-      updateUploadState(result.data.link);
-    } else {
-      showErrorState();
-    }
-  } catch {
-    showErrorState();
-  }
-});
+})
 
 document.querySelector(".go").addEventListener('click', () => {
 
@@ -172,5 +153,3 @@ guide.addEventListener('click', () => {
     }
 
 })
-
-
